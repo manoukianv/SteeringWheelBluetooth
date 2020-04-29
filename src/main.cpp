@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "display.h"
+//#include "display.h"
 #include "button.h"
 #include "joystick.h"
 #include "battery.h"
@@ -24,20 +24,20 @@ battery bat = { .pin = 35, .R1 = 10e3, .R2 = 10e3 };
 
 void setup() {
   Serial.begin(115200);
-  initDisplay();
+  //initDisplay();
   initBattery(&bat);
-  drawBattery(&bat, 10, 0);
+  //drawBattery(&bat, 10, 0);
 
   for (int i = 0; i < N_BUTTONS; i++) {
     initButton(btn[i]);
     readButton(btn[i]);
-    drawButton(btn[i], i, 0);
+    //drawButton(btn[i], i, 0);
   }
 
   for (int i = 0; i < N_JOYSTICK_AXES; i++) {
     initJoystick(axis[i]);
     readButton(btn[i]);
-    drawJoystick(axis[i], 4*i, 2);
+    //drawJoystick(axis[i], 4*i, 2);
   }
 
   initBLE();
@@ -45,9 +45,9 @@ void setup() {
 
 void loop() {
   readBattery(&bat);
-  if (bat.state != bat.prevState) {
+  /*if (bat.state != bat.prevState) {
     drawBattery(&bat, 10, 0);
-  }
+  }*/
 
   for (int i = 0; i < N_BUTTONS; i++) {
     readButton(btn[i]);
@@ -63,7 +63,7 @@ void loop() {
   for (int i = 0; i < N_BUTTONS; i++) {
     if (btn[i]->state != btn[i]->prevState) {
       stateChange = true;
-      drawButton(btn[i], i, 0);
+      //drawButton(btn[i], i, 0);
       Serial.printf("%lu\tbtn %i\t%i\n", millis(), i, btn[i]->state);
     }
   }
@@ -71,7 +71,7 @@ void loop() {
   for (int i = 0; i < N_JOYSTICK_AXES; i++) {
     if (axis[i]->state != axis[i]->prevState) {
       stateChange = true;
-      drawJoystick(axis[i], 4*i, 2);
+      //drawJoystick(axis[i], 4*i, 2);
       Serial.printf("%lu\taxis %i\t%i\n", millis(), i, axis[i]->state);
     }
   }

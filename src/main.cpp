@@ -6,12 +6,15 @@
 #include "battery.h"
 #include "ble.h"
 
-button btn0 = { .pin = 18 };
-button btn1 = { .pin = 23 };
-button btn2 = { .pin = 19 };
-button btn3 = { .pin = 22 };
-button btn4 = { .pin = 21 };
-button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4 };
+button btn0 = { .pin = 23 };
+button btn1 = { .pin = 22 };
+button btn2 = { .pin = 21 };
+button btn3 = { .pin = 19 };
+button btn4 = { .pin = 18 };
+button btn5 = { .pin = 5 };
+button btn6 = { .pin = 17 };
+button btn7 = { .pin = 16 };
+button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4, &btn5, &btn6, &btn7 };
 const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
 
 joystick axisX = { .pin = 34, .min = -445, .max = 495 };
@@ -85,7 +88,7 @@ void loop() {
     for (int i = 0; i < N_BUTTONS; i++) {
       b |= btn[i]->state << i;
     }
-    uint8_t a[] = {x, y, z, b};
+    uint8_t a[] = {x, y, z, b, b};
     input->setValue(a, sizeof(a));
     input->notify();
   }

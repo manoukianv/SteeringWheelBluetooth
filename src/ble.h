@@ -23,12 +23,12 @@ class BLECallbacks : public BLEServerCallbacks {
 };
 
 void taskBLE(void*) {
-  BLEDevice::init("espjoy");
+  BLEDevice::init("Wheel FFB F1");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLECallbacks());
   hid = new BLEHIDDevice(pServer);
   input = hid->inputReport(1); // <-- input REPORTID from report map
-  hid->manufacturer()->setValue("Scott Lawson");
+  hid->manufacturer()->setValue("Vincent Manoukian");
   hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
   hid->hidInfo(0x00,0x01);
 
@@ -55,17 +55,17 @@ void taskBLE(void*) {
     0x81, 0x02,                   //      INPUT (Data, Var, Abs)
     
     0x75, 0x01,                   //      REPORT_SIZE (1)
-    0x95, 0x05,                   //      REPORT_COUNT (5)
+    0x95, 0x10,                   //      REPORT_COUNT (16)
     0x15, 0x00,                   //      LOGICAL_MINIMUM (0)
     0x25, 0x01,                   //      LOGICAL_MAXIMUM (1)
     0x05, 0x09,                   //      USAGE_PAGE (Button)
     0x19, 0x01,                   //      USAGE_MINIMUM (Button 1)
-    0x29, 0x05,                   //      USAGE_MAXIMUM (Button 5)
+    0x29, 0x10,                   //      USAGE_MAXIMUM (Button 16)
     0x81, 0x02,                   //      INPUT (Data, Var, Abs)
     // PADDING for byte alignment
-    0x75, 0x01,                   //      REPORT_SIZE (1)
-    0x95, 0x03,                   //      REPORT_COUNT (3)
-    0x81, 0x03,                   //      INPUT (Constant, Var, Abs)
+    //0x75, 0x01,                   //      REPORT_SIZE (1)
+    //0x95, 0x03,                   //      REPORT_COUNT (3)
+    //0x81, 0x03,                   //      INPUT (Constant, Var, Abs)
     
     0xc0,                         //   END_COLLECTION
     0xc0                          // END_COLLECTION

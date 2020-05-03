@@ -1,58 +1,34 @@
 #include <Arduino.h>
+#include "BleGamepad.h" 
 
-//#include "display.h"
-#include "button.h"
-#include "joystick.h"
-#include "battery.h"
-#include "ble.h"
+BleGamepad bleGamepad;
 
-button btn0 = { .pin = 23 };
-button btn1 = { .pin = 22 };
-button btn2 = { .pin = 21 };
-button btn3 = { .pin = 19 };
-button btn4 = { .pin = 18 };
-button btn5 = { .pin = 5 };
-button btn6 = { .pin = 17 };
-button btn7 = { .pin = 16 };
-button btn8 = { .pin = 4 };
-button btn9 = { .pin = 0 };
-button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4, &btn5, &btn6, &btn7, &btn8, &btn9 };
-const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
-
-joystick axisX = { .pin = 34, .min = -445, .max = 495 };
-joystick axisY = { .pin = 37, .min = -430, .max = 485 };
-joystick axisZ = { .pin = 38, .min = -680, .max = 730 };
-joystick* axis[] = { &axisX, &axisY, &axisZ };
-const int N_JOYSTICK_AXES = sizeof(axis) / sizeof(axis[0]);
-
-battery bat = { .pin = 35, .R1 = 10e3, .R2 = 10e3 };
 
 void setup() {
   Serial.begin(115200);
-  //initDisplay();
-  initBattery(&bat);
-  //drawBattery(&bat, 10, 0);
-
-  for (int i = 0; i < N_BUTTONS; i++) {
-    initButton(btn[i]);
-    readButton(btn[i]);
-    //drawButton(btn[i], i, 0);
-  }
-
-  for (int i = 0; i < N_JOYSTICK_AXES; i++) {
-    initJoystick(axis[i]);
-    readButton(btn[i]);
-    //drawJoystick(axis[i], 4*i, 2);
-  }
-
-  initBLE();
+  Serial.println("Starting BLE work!");
+  bleGamepad.begin();
 }
 
 void loop() {
+
+  if(bleGamepad.isConnected()) {
+    Serial.println("Press buttons 1 and 14. Move all axes to max. Set DPAD to down right.");
+    bleGamepad.press(BUTTON_14);
+    bleGamepad.press(BUTTON_1);
+    bleGamepad.setAxes(127, 127, 127, 127, 127, 127, DPAD_DOWN_RIGHT);
+    delay(500);
+
+    Serial.println("Release button 14. Move all axes to min. Set DPAD to centred.");
+    bleGamepad.release(BUTTON_14);
+    bleGamepad.setAxes(-127, -127, -127, -127, -127, -127, DPAD_CENTERED);
+    delay(500);
+  }
+  /*
   readBattery(&bat);
-  /*if (bat.state != bat.prevState) {
+  if (bat.state != bat.prevState) {
     drawBattery(&bat, 10, 0);
-  }*/
+  }
 
   for (int i = 0; i < N_BUTTONS; i++) {
     readButton(btn[i]);
@@ -102,5 +78,5 @@ void loop() {
     input->notify();
   }
 
-  delay(5);
+  delay(5);*/
 }

@@ -42,7 +42,7 @@ private:
   void rawAction(uint8_t msg[], char msgSize);
   static void taskServer(void* pvParameter);
 public:
-  BleGamepad(std::string deviceName = "ESP32 BLE Gamepad", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 100);
+  BleGamepad(std::string deviceName = "ESP32 BLE Gamepad", std::string deviceManufacturer = "Espressif", uint8_t batteryLevel = 0);
   void begin(void);
   void end(void);
   void setAxes(signed char x, signed char y, signed char z = 0, signed char rZ = 0, char rX = 0, char rY = 0, signed char hat = 0);

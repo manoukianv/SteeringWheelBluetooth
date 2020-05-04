@@ -46,7 +46,6 @@ void loop() {
       readBattery(&bat);
       nbCount = 0;
       if (bat.state != bat.prevState) {
-        Serial.printf("bat level %.2f\n", bat.state);
         if (bat.state >= 0) {
           bleGamepad.setBatteryLevel(bat.state);
         } else {

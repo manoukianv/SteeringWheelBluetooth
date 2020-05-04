@@ -145,8 +145,10 @@ bool BleGamepad::isConnected(void) {
 
 void BleGamepad::setBatteryLevel(uint8_t level) {
   this->batteryLevel = level;
-  if (hid)
+  if (hid !=0) {
     this->hid->setBatteryLevel(this->batteryLevel);
+    this->hid->batteryService()->getCharacteristic((uint16_t) 0x2a19)->notify();
+    }
 }
 
 void BleGamepad::taskServer(void* pvParameter) {

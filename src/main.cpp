@@ -21,6 +21,7 @@ const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
 battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7 };
 void setup() {
   Serial.begin(115200);
+  esp_log_level_set("*", ESP_LOG_VERBOSE);
 
   initBattery(&bat);
 
@@ -39,14 +40,14 @@ void loop() {
 
   nbCount++;
 
-
+  ESP_LOGV(LOG_TAG, "loop.. \n");
   if(bleGamepad.isConnected()) {
 
     if (nbCount > (2000 / 5)) {
       readBattery(&bat);
       nbCount = 0;
       if (bat.state != bat.prevState) {
-        if (bat.state >= 0) {
+        if (bat.state >= 0) { 
           bleGamepad.setBatteryLevel(bat.state);
         } else {
           bleGamepad.setBatteryLevel(0);

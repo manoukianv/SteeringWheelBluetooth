@@ -5,16 +5,16 @@
 
 BleGamepad bleGamepad;
 
-button btn0 = { .pin = 23 };
-button btn1 = { .pin = 22 };
-button btn2 = { .pin = 21 };
-button btn3 = { .pin = 19 };
-button btn4 = { .pin = 18 };
-button btn5 = { .pin = 5 };
-button btn6 = { .pin = 17 };
-button btn7 = { .pin = 16 };
-button btn8 = { .pin = 4 };
-button btn9 = { .pin = 0 };
+button btn0 = { .pin = 23, .reverse = false };
+button btn1 = { .pin = 22, .reverse = false  };
+button btn2 = { .pin = 21, .reverse = false  };
+button btn3 = { .pin = 19, .reverse = false  };
+button btn4 = { .pin = 18, .reverse = true  };
+button btn5 = { .pin = 5, .reverse = true  };
+button btn6 = { .pin = 17, .reverse = false  };
+button btn7 = { .pin = 16, .reverse = false  };
+button btn8 = { .pin = 4, .reverse = false };
+button btn9 = { .pin = 0, .reverse = false  };
 button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4, &btn5, &btn6, &btn7, &btn8, &btn9 };
 const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
 

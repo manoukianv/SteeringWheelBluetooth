@@ -2,6 +2,7 @@
 #include <BleGamepad.h>
 #include "button.h" 
 #include "battery.h"
+#include "encoder.h"
 
 BleGamepad bleGamepad;
 
@@ -18,10 +19,16 @@ button btn9 = { .pin = 0, .reverse = false  };
 button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4, &btn5, &btn6, &btn7, &btn8, &btn9 };
 const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
 
+rotaryencoder enc1 = { .pinA = 2, .pinB = 15};
+rotaryencoder enc2 = { .pinA = 14, .pinB = 12};
+rotaryencoder* enc[] = { &enc1, &enc2 };
+const int N_ENCODERS = sizeof(enc) / sizeof(enc[0]);
+
 battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7 };
+
 void setup() {
   Serial.begin(115200);
-  esp_log_level_set("*", ESP_LOG_VERBOSE);
+  esp_log_level_set("*", ESP_LOG_DEBUG);
 
   initBattery(&bat);
 
@@ -30,7 +37,12 @@ void setup() {
     readButton(btn[i]);
   }
 
-  Serial.println("Starting BLE work!");
+  ESP32Encoder::useInternalWeakPullResistors=UP;
+
+  initEncoder(&enc1);
+  initEncoder(&enc2);
+
+  ESP_LOGI(LOG_TAG, "loop...");
   bleGamepad.begin();
 }
 
@@ -40,7 +52,7 @@ void loop() {
 
   nbCount++;
 
-  ESP_LOGV(LOG_TAG, "loop.. \n");
+  ESP_LOGV(LOG_TAG, "loop...");
   if(bleGamepad.isConnected()) {
 
     if (nbCount > (2000 / 5)) {
@@ -59,12 +71,25 @@ void loop() {
     for (int i = 0; i < N_BUTTONS; i++) {
       readButton(btn[i]);
       if (btn[i]->state != btn[i]->prevState) {
+        ESP_LOGD(LOG_TAG, "button %d : %d", i, btn[i]->state);
         if (btn[i]->state) {
           bleGamepad.press(1 << i);
         } else {
           bleGamepad.release(1 << i);
         }
       }
+    }
+
+    bool encoderChange = false;
+    for (int i = 0; i < N_ENCODERS; i++) {
+      readEncoder(enc[i]);
+      if (enc[i]->state != enc[i]->prevState) {
+        ESP_LOGD(LOG_TAG, "encoder %d : %d", i, enc[i]->state);
+        encoderChange |= true;
+      }
+    }
+    if (encoderChange) {
+      bleGamepad.setAxes(enc1.state, enc2.state, 0, 0, 0, 0, 0);
     }
 
     delay(5);

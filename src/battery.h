@@ -34,7 +34,7 @@ void readBattery(battery* b) {
 
   float avg = float(raw) / float(n);
   float val = avg * (b->maxVoltage) / resolution;
-  ESP_LOGV(LOG_TAG, "level battery %.2f (%.2f)!", val, avg);
+  ESP_LOGD(LOG_TAG, "level battery %.2f (%.2f)!", val, avg);
   val = map(val, b->minVoltage, b->maxVoltage, 0, 100);
   val = roundf(val * 100) / 100;
   b->prevState = b->state;

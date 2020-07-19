@@ -1,94 +1,98 @@
 #include <Arduino.h>
-
-//#include "display.h"
-#include "button.h"
-#include "joystick.h"
+#include <BleGamepad.h>
+#include "button.h" 
 #include "battery.h"
-#include "ble.h"
+#include "encoder.h"
 
-button btn0 = { .pin = 18 };
-button btn1 = { .pin = 23 };
-button btn2 = { .pin = 19 };
-button btn3 = { .pin = 22 };
-button btn4 = { .pin = 21 };
-button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4 };
+BleGamepad bleGamepad;
+
+button btn0 = { .pin = 23, .reverse = false };
+button btn1 = { .pin = 22, .reverse = false  };
+button btn2 = { .pin = 21, .reverse = false  };
+button btn3 = { .pin = 19, .reverse = false  };
+button btn4 = { .pin = 18, .reverse = true  };
+button btn5 = { .pin = 5, .reverse = true  };
+button btn6 = { .pin = 17, .reverse = false  };
+button btn7 = { .pin = 16, .reverse = false  };
+button btn8 = { .pin = 4, .reverse = false };
+button btn9 = { .pin = 0, .reverse = false  };
+button* btn[] = { &btn0, &btn1, &btn2, &btn3, &btn4, &btn5, &btn6, &btn7, &btn8, &btn9 };
 const int N_BUTTONS = sizeof(btn) / sizeof(btn[0]);
 
-joystick axisX = { .pin = 34, .min = -445, .max = 495 };
-joystick axisY = { .pin = 37, .min = -430, .max = 485 };
-joystick axisZ = { .pin = 38, .min = -680, .max = 730 };
-joystick* axis[] = { &axisX, &axisY, &axisZ };
-const int N_JOYSTICK_AXES = sizeof(axis) / sizeof(axis[0]);
+rotaryencoder enc1 = { .pinA = 2, .pinB = 15};
+rotaryencoder enc2 = { .pinA = 14, .pinB = 12};
+rotaryencoder* enc[] = { &enc1, &enc2 };
+const int N_ENCODERS = sizeof(enc) / sizeof(enc[0]);
 
-battery bat = { .pin = 35, .R1 = 10e3, .R2 = 10e3 };
+battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7 };
 
 void setup() {
   Serial.begin(115200);
-  //initDisplay();
+  esp_log_level_set("*", ESP_LOG_DEBUG);
+
   initBattery(&bat);
-  //drawBattery(&bat, 10, 0);
 
   for (int i = 0; i < N_BUTTONS; i++) {
     initButton(btn[i]);
     readButton(btn[i]);
-    //drawButton(btn[i], i, 0);
   }
 
-  for (int i = 0; i < N_JOYSTICK_AXES; i++) {
-    initJoystick(axis[i]);
-    readButton(btn[i]);
-    //drawJoystick(axis[i], 4*i, 2);
-  }
+  ESP32Encoder::useInternalWeakPullResistors=UP;
 
-  initBLE();
+  initEncoder(&enc1);
+  initEncoder(&enc2);
+
+  ESP_LOGI(LOG_TAG, "loop...");
+  bleGamepad.begin();
 }
 
+int nbCount = 0;
+
 void loop() {
-  readBattery(&bat);
-  /*if (bat.state != bat.prevState) {
-    drawBattery(&bat, 10, 0);
-  }*/
 
-  for (int i = 0; i < N_BUTTONS; i++) {
-    readButton(btn[i]);
-  }
-  
-  for (int i = 0; i < N_JOYSTICK_AXES; i++) {
-    readJoystick(axis[i]);
-  }
-  applyDeadzone(axis[0], axis[1], 20);
+  nbCount++;
 
-  bool stateChange;
+  ESP_LOGV(LOG_TAG, "loop...");
+  if(bleGamepad.isConnected()) {
 
-  for (int i = 0; i < N_BUTTONS; i++) {
-    if (btn[i]->state != btn[i]->prevState) {
-      stateChange = true;
-      //drawButton(btn[i], i, 0);
-      Serial.printf("%lu\tbtn %i\t%i\n", millis(), i, btn[i]->state);
+    if (nbCount > (2000 / 5)) {
+      readBattery(&bat);
+      nbCount = 0;
+      if (bat.state != bat.prevState) {
+        if (bat.state >= 0) { 
+          bleGamepad.setBatteryLevel(bat.state);
+        } else {
+          bleGamepad.setBatteryLevel(0);
+        }
+        
+      }
     }
-  }
 
-  for (int i = 0; i < N_JOYSTICK_AXES; i++) {
-    if (axis[i]->state != axis[i]->prevState) {
-      stateChange = true;
-      //drawJoystick(axis[i], 4*i, 2);
-      Serial.printf("%lu\taxis %i\t%i\n", millis(), i, axis[i]->state);
-    }
-  }
-
-  // Send BLE update.
-  if (connected && stateChange) {
-    int8_t x = axis[0]->state;
-    int8_t y = axis[1]->state;
-    int8_t z = axis[2]->state;
-    uint8_t b = 0;
     for (int i = 0; i < N_BUTTONS; i++) {
-      b |= btn[i]->state << i;
+      readButton(btn[i]);
+      if (btn[i]->state != btn[i]->prevState) {
+        ESP_LOGD(LOG_TAG, "button %d : %d", i, btn[i]->state);
+        if (btn[i]->state) {
+          bleGamepad.press(1 << i);
+        } else {
+          bleGamepad.release(1 << i);
+        }
+      }
     }
-    uint8_t a[] = {x, y, z, b};
-    input->setValue(a, sizeof(a));
-    input->notify();
+
+    bool encoderChange = false;
+    for (int i = 0; i < N_ENCODERS; i++) {
+      readEncoder(enc[i]);
+      if (enc[i]->state != enc[i]->prevState) {
+        ESP_LOGD(LOG_TAG, "encoder %d : %d", i, enc[i]->state);
+        encoderChange |= true;
+      }
+    }
+    if (encoderChange) {
+      bleGamepad.setAxes(enc1.state, enc2.state, 0, 0, 0, 0, 0);
+    }
+
+    delay(5);
   }
 
-  delay(5);
 }

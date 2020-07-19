@@ -15,21 +15,31 @@ bool connected;
 class BLECallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer* pServer){
     connected = true;
+    Serial.println("onConnect");
+  }
+
+  void onConnect(BLEServer* pServer, esp_ble_gatts_cb_param_t *param){
+    connected = true;
+    Serial.println("onConnect with parameters");
   }
 
   void onDisconnect(BLEServer* pServer){
     connected = false;
+    Serial.println("onDisconnect");
   }
+
+  
 };
 
 void taskBLE(void*) {
-  BLEDevice::init("espjoy");
+  Serial.println("start Bluetooth");
+  BLEDevice::init("Wheel FFB F1");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new BLECallbacks());
   hid = new BLEHIDDevice(pServer);
   input = hid->inputReport(1); // <-- input REPORTID from report map
-  hid->manufacturer()->setValue("Scott Lawson");
-  hid->pnp(0x02, 0xe502, 0xa111, 0x0210);
+  hid->manufacturer()->setValue("Vincent Manoukian");
+  hid->pnp(0x02, 0xe503, 0xa111, 0x0210);
   hid->hidInfo(0x00,0x01);
 
   BLESecurity *pSecurity = new BLESecurity();
@@ -55,16 +65,16 @@ void taskBLE(void*) {
     0x81, 0x02,                   //      INPUT (Data, Var, Abs)
     
     0x75, 0x01,                   //      REPORT_SIZE (1)
-    0x95, 0x05,                   //      REPORT_COUNT (5)
+    0x95, 0x0A,                   //      REPORT_COUNT (10)
     0x15, 0x00,                   //      LOGICAL_MINIMUM (0)
     0x25, 0x01,                   //      LOGICAL_MAXIMUM (1)
     0x05, 0x09,                   //      USAGE_PAGE (Button)
     0x19, 0x01,                   //      USAGE_MINIMUM (Button 1)
-    0x29, 0x05,                   //      USAGE_MAXIMUM (Button 5)
+    0x29, 0x0A,                   //      USAGE_MAXIMUM (Button 10)
     0x81, 0x02,                   //      INPUT (Data, Var, Abs)
     // PADDING for byte alignment
     0x75, 0x01,                   //      REPORT_SIZE (1)
-    0x95, 0x03,                   //      REPORT_COUNT (3)
+    0x95, 0x06,                   //      REPORT_COUNT (6)
     0x81, 0x03,                   //      INPUT (Constant, Var, Abs)
     
     0xc0,                         //   END_COLLECTION
@@ -73,6 +83,7 @@ void taskBLE(void*) {
 
   hid->reportMap((uint8_t*)reportMap, sizeof(reportMap));
   hid->startServices();
+
 
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
   pAdvertising->setAppearance(HID_GAMEPAD);

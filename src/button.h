@@ -5,6 +5,7 @@
 
 struct button {
   int pin;
+  boolean reverse;
   int state;
   int prevState;
 };
@@ -16,7 +17,7 @@ void initButton(button* btn) {
 
 void readButton(button* btn) {
   btn->prevState = btn->state;
-  btn->state = !digitalRead(btn->pin);
+  btn->state = !digitalRead(btn->pin) != btn->reverse;
 }
 
 #endif

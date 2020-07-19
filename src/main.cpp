@@ -4,7 +4,7 @@
 #include "battery.h"
 #include "encoder.h"
 
-BleGamepad bleGamepad;
+BleGamepad bleGamepad ("Wireless Wheel", "Vincent Manoukian", 0);
 
 button btn0 = { .pin = 23, .reverse = false };
 button btn1 = { .pin = 22, .reverse = false  };
@@ -73,9 +73,9 @@ void loop() {
       if (btn[i]->state != btn[i]->prevState) {
         ESP_LOGD(LOG_TAG, "button %d : %d", i, btn[i]->state);
         if (btn[i]->state) {
-          bleGamepad.press(1 << i);
+          bleGamepad.press(i + 1);
         } else {
-          bleGamepad.release(1 << i);
+          bleGamepad.release(i + 1);
         }
       }
     }

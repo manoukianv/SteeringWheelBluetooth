@@ -29,7 +29,7 @@ static const uint8_t _hidReportDescriptor[] = {
   // ------------------------------------------------- Buttons (1 to 14)
   USAGE_PAGE(1),       0x09, //     USAGE_PAGE (Button)
   USAGE_MINIMUM(1),    0x01, //     USAGE_MINIMUM (Button 1)
-  USAGE_MAXIMUM(1),    0x20, //     USAGE_MAXIMUM (Button 14)
+  USAGE_MAXIMUM(1),    0x20, //     USAGE_MAXIMUM (Button 32)
   LOGICAL_MINIMUM(1),  0x00, //     LOGICAL_MINIMUM (0)
   LOGICAL_MAXIMUM(1),  0x01, //     LOGICAL_MAXIMUM (1)
   REPORT_SIZE(1),      0x01, //     REPORT_SIZE (1)
@@ -175,7 +175,7 @@ void BleGamepad::taskServer(void* pvParameter) {
 
   BleGamepadInstance->hid->manufacturer()->setValue(BleGamepadInstance->deviceManufacturer);
 
-  BleGamepadInstance->hid->pnp(0x01,0x02e5,0xabcd,0x0110);
+  BleGamepadInstance->hid->pnp(0x01,0x02e5,0xabca,0x0100);
   BleGamepadInstance->hid->hidInfo(0x00,0x01);
 
   BLESecurity *pSecurity = new BLESecurity();
@@ -188,7 +188,7 @@ void BleGamepad::taskServer(void* pvParameter) {
   BleGamepadInstance->onStarted(pServer);
 
   BLEAdvertising *pAdvertising = pServer->getAdvertising();
-  pAdvertising->setAppearance(HID_GAMEPAD);
+  pAdvertising->setAppearance(HID_JOYSTICK);
   pAdvertising->addServiceUUID(BleGamepadInstance->hid->hidService()->getUUID());
   pAdvertising->start();
   BleGamepadInstance->hid->setBatteryLevel(BleGamepadInstance->batteryLevel);

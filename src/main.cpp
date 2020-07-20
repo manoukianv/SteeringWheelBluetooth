@@ -105,13 +105,18 @@ void loop() {
     for (int i = 0; i < N_ENCODERS; i++) {
         int direction = enc[i]->nbPulseToSimulate >= 0 ? 1 : -1;
         int pinDirOffset = direction > 0 ? 0 : -1;
-        if ( (enc[i]->nbPulseToSimulate != 0) && !bleGamepad.isPressed(26 + pinDirOffset + (i*2)) && 
-             ( (millis() - lastTimeButtonPush[(i*2) + 1 + pinDirOffset] ) > ENCODER_PRESS_TIME) ) {
-          lastTimeButtonPush[(i*2) + 1 + pinDirOffset] = millis();
-          bleGamepad.press(26 + pinDirOffset + (i*2));
+        int pin = (i*2) + 1 + pinDirOffset;
+
+        if ( (enc[i]->nbPulseToSimulate != 0) && 
+              !bleGamepad.isPressed(25 + pin) && 
+             ( (millis() - lastTimeButtonPush[pin] ) > ENCODER_PRESS_TIME) ) {
+          
+          lastTimeButtonPush[pin] = millis();
+          bleGamepad.press(25 + pin);
           enc[i]->nbPulseToSimulate -= direction;
           ESP_LOGD(LOG_TAG, "encoder %d : press", i); 
           encoderChange = true;
+          
         } 
     }
 

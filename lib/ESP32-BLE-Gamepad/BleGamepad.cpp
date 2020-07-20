@@ -120,7 +120,6 @@ void BleGamepad::buttons(uint32_t b)
   if (b != _buttons)
   {
     _buttons = b;
-    setAxes(0, 0, 0, 0, 0, 0, 0);
   }
 }
 

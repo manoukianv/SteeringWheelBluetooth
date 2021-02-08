@@ -4,7 +4,7 @@
 #include "battery.h"
 #include "encoder.h"
 
-#define ENCODER_PRESS_TIME 200
+#define ENCODER_PRESS_TIME 100
 
 BleGamepad bleGamepad ("Wireless Wheel", "Vincent Manoukian", 0);
 
@@ -12,8 +12,8 @@ button btn0 = { .pin = 23, .reverse = false };
 button btn1 = { .pin = 22, .reverse = false  };
 button btn2 = { .pin = 21, .reverse = false  };
 button btn3 = { .pin = 19, .reverse = false  };
-button btn4 = { .pin = 18, .reverse = true  };
-button btn5 = { .pin = 5, .reverse = true  };
+button btn4 = { .pin = 18, .reverse = false  };
+button btn5 = { .pin = 5, .reverse = false  };
 button btn6 = { .pin = 17, .reverse = false  };
 button btn7 = { .pin = 16, .reverse = false  };
 button btn8 = { .pin = 4, .reverse = false };
@@ -126,7 +126,7 @@ void loop() {
       //bleGamepad.setAxes(enc1.axisValue, enc2.axisValue , 0, 0, 0, 0, 0);
     }
 
-    delay(5);
+    delay(1);
   }
 
 }

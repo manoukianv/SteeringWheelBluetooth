@@ -27,7 +27,7 @@ rotaryencoder enc2 = { .pinA = 14, .pinB = 12};
 rotaryencoder* enc[] = { &enc1, &enc2 };
 const int N_ENCODERS = sizeof(enc) / sizeof(enc[0]);
 
-battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7 };
+battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7, .rGND = 32.8, .rVCC = 43.0 };
 
 void setup() {
   Serial.begin(115200);

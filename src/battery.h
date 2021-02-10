@@ -15,6 +15,8 @@ struct battery {
   int pin;
   float maxVoltage;
   float minVoltage;
+  float rGND;
+  float rVCC;
   float state;
   float prevState;
 };
@@ -26,6 +28,7 @@ void initBattery(battery* b) {
 void readBattery(battery* b) {
   const static int n = 16;
   const static int resolution = 4096;
+  const static float maxVoltage = 3.3;
 
   int raw = 0;
   for (int i = 0; i < n; i++) {
@@ -33,9 +36,10 @@ void readBattery(battery* b) {
   }
 
   float avg = float(raw) / float(n);
-  float val = avg * (b->maxVoltage) / resolution;
-  ESP_LOGD(LOG_TAG, "level battery %.2f (%.2f)!", val, avg);
-  val = map(val, b->minVoltage, b->maxVoltage, 0, 100);
+  float adcVoltage = avg * maxVoltage / resolution;
+  float batteryVoltage = adcVoltage * (b->rGND + b->rVCC) / b-> rGND;
+  ESP_LOGD(LOG_TAG, "level battery %.2fV (%.2fV/%.2f)!", batteryVoltage, adcVoltage, avg);
+  float val = map(batteryVoltage, b->minVoltage, b->maxVoltage, 0, 100);
   val = roundf(val * 100) / 100;
   b->prevState = b->state;
   b->state = val;

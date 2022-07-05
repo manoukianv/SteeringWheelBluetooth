@@ -30,7 +30,7 @@ void readEncoder(rotaryencoder* enc) {
     
     int valueAxis = enc->pulse % 80;    // Axis position calcul : 1 tuen is 80 pulse
     if (valueAxis < 0) valueAxis += 80; // if modulo is negatif, add 80 to translate in positif
-    enc->axisValue = (signed char) map(valueAxis, 0, 80, -127, 127); // convert to axis resolution
+    enc->axisValue = (signed char) map(valueAxis, 0, 80, -32767, 32767); // convert to axis resolution
 
     int delta = (enc->pulse - enc->prevPulse) / 4; // ccompute the nb click to increment the nb pulse sim left
     enc->nbPulseToSimulate += delta;

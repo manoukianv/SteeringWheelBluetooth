@@ -3,12 +3,13 @@
 #include "button.h" 
 #include "battery.h"
 #include "encoder.h"
+#include "esp_adc_cal.h"
 
 #define ENCODER_PRESS_TIME 100
 #define ENC_SEND_BUTTON 1
 #define ENC_SEND_AXIS 1
 
-BleGamepad bleGamepad ("Wireless Wheel", "Vincent Manoukian", 0);
+BleGamepad bleGamepad ("Wireless Wheel 1.1", "Vincent Manoukian", 0);
 
 button btn0 = { .pin = 23, .reverse = false };
 button btn1 = { .pin = 22, .reverse = false  };
@@ -29,7 +30,7 @@ rotaryencoder enc2 = { .pinA = 14, .pinB = 12};
 rotaryencoder* enc[] = { &enc1, &enc2 };
 const int N_ENCODERS = sizeof(enc) / sizeof(enc[0]);
 
-battery bat = { .pin = 35, .maxVoltage = 8.2, .minVoltage = 7, .rGND = 18, .rVCC = 43.0 };
+battery bat = { .pin = 35, .maxVoltage = 8400, .minVoltage = 7000, .rGND = 30.0, .rVCC = 70.0, .state = 100, .prevState = 100 };
 
 void setup() {
   Serial.begin(115200);
@@ -47,15 +48,22 @@ void setup() {
   initEncoder(&enc2);
 
   log_i("loop...");
+
+  // Initialize Joystick Library
   BleGamepadConfiguration bleGamepadConfig;
   bleGamepadConfig.setControllerType(CONTROLLER_TYPE_GAMEPAD);
-  bleGamepadConfig.setButtonCount(32);
+  bleGamepadConfig.setButtonCount(128);
   bleGamepadConfig.setHatSwitchCount(0);
-  // if required more axis for encoder add true to enable it
-  bleGamepadConfig.setWhichAxes(true, true, false, false, false, false, false, false);
+  bleGamepadConfig.setWhichAxes(true, true, true, true, true, true, false, false);
+  bleGamepadConfig.setAxesMax(80);
   bleGamepadConfig.setAutoReport(false);
 
   bleGamepad.begin(&bleGamepadConfig);
+  log_d("Gamepad created");
+
+
+  esp_adc_cal_value_t adc_cal = esp_adc_cal_characterize(ADC_UNIT_1, ADC_ATTEN_DB_11, ADC_WIDTH_BIT_12, 1100, &adc_chars);
+  log_i("ADC calibration ref : %d", adc_cal);
 }
 
 int nbCount = 0;
